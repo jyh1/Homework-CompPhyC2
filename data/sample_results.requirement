@@ -1,0 +1,6 @@
+1.Include some minimum archive information, such as date, program version, user and so on.
+2.Echo input parameters, including bond-length, bond angle, temperature(kBT), and so on.
+3.For each sample size, report the calculated values of the following quantities and their respective error ranges:
+ (a) Helmholtz free energy
+ (b) Internal energy
+ (c) Entropy

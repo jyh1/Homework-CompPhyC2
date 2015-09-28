@@ -1,0 +1,7 @@
+1.Include some minimum archive information, such as date, program version, user and so on.
+2.Echo input parameters, including chain-length, temperature(kBT), and so on.
+3.For each sample size, report the calculated values of the following quantities and their respective error ranges:
+ (a) Helmholtz free energy
+ (b) Internal energy
+ (c) Entropy
+ (d) Radius of gyration (assuming all monomers has the same mass of 1. You may look up the definition of radius of gyration if you do not already know what it is).
