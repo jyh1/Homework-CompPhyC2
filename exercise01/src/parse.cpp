@@ -2,19 +2,13 @@
 #include <Eigen/Dense>
 #include "zmatrix.h"
 #include <string>
+#include <list>
+#include "parse.h"
 
 using namespace std;
 using namespace Eigen;
 using std::string;
 
-const unsigned long int INF =  numeric_limits<streamsize>::max();
-const int MAXNAMESIZE = 10;
-const double degree = 0.017453292519943295;
-
-enum ParseState {ParseSucced, ParseFailed};
-
-
-typedef function<ParseState(istream &)> Parser;
 
 Parser backward(Parser &p){  //go back if parser p failed
   return [p] (istream &input){
@@ -28,6 +22,14 @@ Parser backward(Parser &p){  //go back if parser p failed
               };
 }
 
+Parser makeStringParser(string &s){
+  return [&s](istream &input){
+            char c;
+            if (! (input >> c)) return ParseFailed;
+            s += c;
+            return ParseSucced;
+          };
+}
 
 Parser makeAngleParser(double &phi){
   Parser p = [&phi](istream &input){
@@ -53,6 +55,11 @@ Parser makeIDParser(int &id){
   return (backward(p));
 }
 
+Parser makeNameParser(string &s){
+  Parser p = makeStringParser(s);
+  return parseUntilSucced(p, spaceParser);
+}
+
 Parser makeCharParser(char c){
   return [c](istream &input){
           if (input.peek() == c){
@@ -63,10 +70,31 @@ Parser makeCharParser(char c){
         };
 }
 
+
 Parser parseUntilFailed(Parser &p){
   return [p](istream &input){
+          if (p(input) == ParseFailed) return ParseFailed;
           while (p(input) == ParseSucced){};
           return ParseSucced;
+        };
+}
+
+Parser parseUntilSucced(Parser &p1, Parser &p2){
+  return [p1, p2](istream &input){
+          if (p2(input) == ParseSucced) return ParseFailed;
+          while (p2(input) == ParseFailed) p1(input);
+          return ParseSucced;
+        };
+}
+
+Parser parseParallel(list<Parser> &parsers){  //return fail if none of the parser in list failed
+  return [parsers](istream &input){
+          for (auto i = parsers.begin(); i != parsers.end(); i++){
+            if ( (*i)(input) == ParseSucced){
+              return ParseSucced;
+            }
+          }
+          return ParseFailed;
         };
 }
 
@@ -77,6 +105,8 @@ Parser parseUntilFailed(Parser &p){
 //Parser
 Parser spaceParser = makeCharParser(' ');
 
+Parser deleteSpaces = parseUntilFailed(spaceParser);
+
 ParseState commentParser(istream &input){
   if (input.peek() == '#'){
     input.ignore(INF, '\n');
@@ -84,7 +114,6 @@ ParseState commentParser(istream &input){
   }
   return ParseFailed;
 }
-
 
 
 
@@ -145,14 +174,15 @@ ParseState commentParser(istream &input){
 
 
 int main(int argc, char const *argv[]) {
-  double phi,d;
-  char c;
-  string s("2 3, 4 s");
+  double phi=-1,d;
+  int id=-1;
+  char c, b[100];
+  string ss("");
+  list<Parser> parsers = {makeNameParser(ss),makeIDParser(id), makeAngleParser(phi)};
+  cin.getline(b, 100);
+  string s(b);
   stringstream test(s);
-  Parser p = makeAngleParser(phi);
-  parseUntilFailed(p)(test);
-  cout << phi << endl;
-  test >> c;
-  cout << c << endl;
+  cout << parseParallel(parsers)(test) <<endl;
+  cout << phi << ' ' << id << ' '<< ss << endl;
   return 0;
 }
