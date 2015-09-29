@@ -11,65 +11,148 @@ const unsigned long int INF =  numeric_limits<streamsize>::max();
 const int MAXNAMESIZE = 10;
 const double degree = 0.017453292519943295;
 
+enum ParseState {ParseSucced, ParseFailed};
 
-int deleteComments(istream &input){
-  while (input.peek() == '#'){
-    if (input.peek() == EOF) {
-      return -1;
-    }
+
+typedef function<ParseState(istream &)> Parser;
+
+Parser backward(Parser &p){  //go back if parser p failed
+  return [p] (istream &input){
+                auto pos = input.tellg();
+                if (p(input) == ParseFailed){
+                  input.clear();
+                  input.seekg(pos);
+                  return ParseFailed;
+                }
+                return ParseSucced;
+              };
+}
+
+
+Parser makeAngleParser(double &phi){
+  Parser p = [&phi](istream &input){
+              double temp;
+              if (input >> temp){
+                phi = temp * degree;
+                return ParseSucced;
+              }
+              return ParseFailed;
+            };
+  return (backward(p));
+}
+
+Parser makeIDParser(int &id){
+  Parser p = [&id](istream &input){
+              int temp;
+              if (input >> temp){
+                id = temp;
+                return ParseSucced;
+              }
+              return ParseFailed;
+        };
+  return (backward(p));
+}
+
+Parser makeCharParser(char c){
+  return [c](istream &input){
+          if (input.peek() == c){
+            input.get();
+            return ParseSucced;
+          }
+          return ParseFailed;
+        };
+}
+
+Parser parseUntilFailed(Parser &p){
+  return [p](istream &input){
+          while (p(input) == ParseSucced){};
+          return ParseSucced;
+        };
+}
+
+
+
+
+
+//Parser
+Parser spaceParser = makeCharParser(' ');
+
+ParseState commentParser(istream &input){
+  if (input.peek() == '#'){
     input.ignore(INF, '\n');
+    return ParseSucced;
   }
-  return 0;
+  return ParseFailed;
 }
 
 
-int deleteChars(istream &input, char c = ' '){
-  while (input.peek() == c){
-    input.ignore();
-  }
-  return 0;
-}
-
-string parseName(istream &input){
-  deleteChars(input);
-  char c[MAXNAMESIZE];
-  input.get(c, MAXNAMESIZE, ' ');
-  string name(c);
-  return name;
-}
 
 
-Vector3d parseVector(istream &input){
-  deleteComments(input);
-  int id;
-  input >> id;
-
-  parseName(input);//discarded
-  double d1, d2, d3;
-  input >> d1 >> d2 >> d3;
-  Vector3d v(d1, d2, d3);
-  return v;
-}
+//Parser Combinator
 
 
-Zmatrix parseZmatrix(istream &input){
-  int r1id, r2id, r3id, id;
-  double l, theta, phi;
-  deleteComments(input);
-  input >> id;
-  parseName(input);//discarded
-  input >> r3id >> l >> r2id >> theta >> r1id >> phi;
-  theta *= degree; phi *= degree;
-  Zmatrix data(id, r3id, l, r2id, theta, r1id, phi);
-  return data;
-}
+
+// int deleteComments(istream &input){
+//   while (input.peek() == '#'){
+//     if (input.peek() == EOF) {
+//       return -1;
+//     }
+//     input.ignore(INF, '\n');
+//   }
+//   return 0;
+// }
+
+
+// int deleteChars(istream &input, char c = ' '){
+//   while (input.peek() == c){
+//     input.ignore();
+//   }
+//   return 0;
+// }
+//
+// string parseName(istream &input){
+//   deleteChars(input);
+//   char c[MAXNAMESIZE];
+//   input.get(c, MAXNAMESIZE, ' ');
+//   string name(c);
+//   return name;
+// }
+//
+//
+//
+//
+// ParseState parseZmatrixcartesian(istream &input, Zmatrix &parsed){
+//   double d1, d2, d3;
+//   if (! (input >> d1 >> d2 >> d3)) {
+//     return ParseFailed;
+//   }
+//   Vector3d temp(d1, d2, d3);
+//   parsed.coord = temp;
+//   parsed.type = cartesian;
+//   return ParseSucced;
+// }
+//
+//
+// ParseState parseZmatrixmatrix(istream &input, Zmatrix &parsed){
+//   if (! (input >> parsed.r3id >> parsed.l >> parsed.r2id >> parsed.theta
+//               >> parsed.r1id >> parsed.phi)){
+//     return ParseFailed;
+//   }
+//   parsed.theta *= degree; parsed.phi *= degree;
+//   parsed.type = matrix;
+//   return ParseSucced;
+// }
 
 
 int main(int argc, char const *argv[]) {
-  // Vector3d v = parseVector(cin);
-  // cout << v << endl;
-  string name;
-  Zmatrix test = parseZmatrix(cin);
-  cout << test.id << endl;
+  double phi,d;
+  char c;
+  string s("2 3, 4 s");
+  stringstream test(s);
+  Parser p = makeAngleParser(phi);
+  parseUntilFailed(p)(test);
+  cout << phi << endl;
+  test >> c;
+  cout << c << endl;
   return 0;
 }
