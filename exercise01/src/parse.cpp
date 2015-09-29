@@ -57,12 +57,10 @@ Zmatrix parseZmatrix(istream &input){
   double l, theta, phi;
   deleteComments(input);
   input >> id;
-  // cout << id << endl;
   parseName(input);//discarded
   input >> r3id >> l >> r2id >> theta >> r1id >> phi;
   theta *= degree; phi *= degree;
   Zmatrix data(id, r3id, l, r2id, theta, r1id, phi);
-  // cout << data.r1id << endl;
   return data;
 }
 
