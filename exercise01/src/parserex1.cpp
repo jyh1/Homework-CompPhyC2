@@ -1,10 +1,10 @@
 #include <iostream>
 #include <string>
 #include <list>
-#include "zmatrix.h"
-#include "parse.h"
+// #include "zmatrix.h"
+// #include "parse.h"
 #include "parserex1.h"
-#include <fstream>
+// #include <fstream>
 
 using namespace std;
 using std::string;
@@ -127,17 +127,17 @@ Parser makeZmatrixFileParser(list<Zmatrix*> &matrixlist){
         };
 }
 
-//file test
-int main(int argc, char const *argv[]) {
-  fstream ifs;
-  ifs.open ("../../data/zmatrix_in.dat", std::ifstream::in);
-  list<Zmatrix*> matrixes;
-  makeZmatrixFileParser(matrixes)(ifs);
-  for (auto i = matrixes.begin(); i != matrixes.end(); i++){
-    (*i) -> print(cout);
-  }
-  return 0;
-}
+// file test
+// int main(int argc, char const *argv[]) {
+//   fstream ifs;
+//   ifs.open ("../../data/zmatrix_in.dat", std::ifstream::in);
+//   list<Zmatrix*> matrixes;
+//   makeZmatrixFileParser(matrixes)(ifs);
+//   for (auto i = matrixes.begin(); i != matrixes.end(); i++){
+//     (*i) -> print(cout);
+//   }
+//   return 0;
+// }
 
 
 

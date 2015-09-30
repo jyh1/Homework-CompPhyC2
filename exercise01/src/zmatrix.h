@@ -9,7 +9,7 @@ using namespace Eigen;
 using namespace std;
 enum ZmatrixType {cartesian, second, third, matrix};
 
-const Vector3d DEFAULTXAXIS(0, 0, 1);
+const Vector3d DEFAULTXAXIS(1, 0, 0);
 
 class Zmatrix
 {

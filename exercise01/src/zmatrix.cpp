@@ -1,4 +1,4 @@
-#include <string>
+// #include <string>
 
 #include <Eigen/Dense>
 #include <iostream>
@@ -80,13 +80,14 @@ Vector3d Zmatrix::getCoordinateFromAxes(const vector<Vector3d> & axes){
 
 
 
-int main()
-{
-  Zmatrix s(4, 3, 1.5, 2, 1.91114, 1, 3.1415826);
-  s.print(cout);
-  std::vector<Zmatrix*> v = {new Zmatrix(),new Zmatrix(1, 0, 0, 0)
-                            , new Zmatrix(2, 1.5, 0, 0),
-                              new Zmatrix(3, 2.00071, 1.41396,0)};
-  cout << s.toCartesian(v) << endl;
-  return 0;
-}
+// int main()
+// {
+//   // Zmatrix s(4, 3, 1.5, 2, 1.91114, 1, 3.1415826);
+//   Zmatrix s(3, 2, 1.5, 1, 1.91114);
+//   s.print(cout);
+//   std::vector<Zmatrix*> v = {new Zmatrix(),new Zmatrix(1, 0, 0, 0)
+//                             , new Zmatrix(2, 1.5, 0, 0),
+//                               new Zmatrix(3, 2.00071, 1.41396,0)};
+//   cout << s.toCartesian(v) << endl;
+//   return 0;
+// }
