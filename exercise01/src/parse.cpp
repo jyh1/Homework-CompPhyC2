@@ -22,6 +22,17 @@ Parser backward(Parser &p){  //go back if parser p failed
               };
 }
 
+Parser alwaysBackward(Parser &p){  //go back if parser p failed
+  return [p] (istream &input){
+                auto pos = input.tellg();
+                ParseState state = p(input);
+                input.clear();
+                input.seekg(pos);
+                return state;
+              };
+}
+
+
 Parser makeStringParser(string &s){
   return [&s](istream &input){
             char c;
@@ -46,10 +57,11 @@ Parser makeDoubleParser(double &phi){
 Parser makeIntParser(int &id){
   Parser p = [&id](istream &input){
               int temp;
-              if (input >> temp){
-                id = temp;
-                return ParseSucceed;
-              }
+              if (input >> temp)
+                if (testBlankChar(input) == ParseSucceed){
+                  id = temp;
+                  return ParseSucceed;
+                }
               return ParseFailed;
         };
   return (backward(p));
@@ -138,6 +150,10 @@ ParseState nullParser(istream &input){
 }
 
 Parser spaceParser = makeCharsParser(" ");
+
+Parser blankChar = makeCharsParser(" \t\n");
+
+Parser testBlankChar = alwaysBackward(blankChar);
 
 Parser deleteSpaces = parseUntilFailed(spaceParser);
 
@@ -231,23 +247,48 @@ Parser parseZmatrixmatrix(Zmatrix *& data){
         };
 }
 
+Parser parseZmatrix(Zmatrix *& data){
+  return [&data] (istream & input){
+      list<Parser> parsers = {parseZmatrixmatrix(data),
+                              parseZmatrixthird(data),
+                              parseZmatrixcartesian(data),
+                              parseZmatrixsecond(data)};
+      return parseParallel(parsers)(input);
+    };
+}
+
 
 int main(int argc, char const *argv[]) {
   double phi=-1,d;
   int id=-1;
   char c, b[100],q;
-  string ss("");
-  list<Parser> parsers = {makeIntParser(id), makeDoubleParser(phi),makeNameParser(ss)};
-  cin.getline(b, 100);
-  string s(b);
-  stringstream test(s), test2(s);
-  // cout << parseSerial(parsers, nullParser)(test) <<endl;
-  // cout << phi << ' ' << id << ' '<< ss << endl;
-  // test >> q;
-  // cout << q << endl;
+  stringstream test1(" 1  A1  0.0  0.0  0.0");
+  stringstream test2(" 2  A2  1  1.5");
+  stringstream test3(" 3 A3  2  1.5  1  109.5");
+  stringstream test4(" 8 A8 7 1.5 6  109.5  5 180.0");
+  // list<stringstream> test = {test1,test2,test3,test4};
+  // cin >> id;
+  // cout << char(cin.peek()) << endl;
+  // cout << makeIntParser(id)(cin) << endl;
+  Zmatrix *aa;
+  // cout << parseZmatrixmatrix(aa)(test1) << endl;
   Zmatrix *matrix;
-  cout << parseZmatrixmatrix(matrix)(test) << endl;
-  (*matrix).print(cout);
+  // for (auto i = test.begin(); i != test.end(); i++){
+    parseZmatrix(matrix)(test1);
+    matrix->print(cout);
+    cout << (matrix -> type) << endl;
+    parseZmatrix(matrix)(test2);
+    matrix->print(cout);
+    cout << (matrix -> type) << endl;
+    parseZmatrix(matrix)(test3);
+    matrix->print(cout);
+    cout << (matrix -> type) << endl;
+    matrix->print(cout);
+    parseZmatrix(matrix)(test4);
+    cout << (matrix -> type) << endl;
+    matrix->print(cout);
+  //   (*matrix).print(cout);
+  // }
   // cout << makeNameParser(ss)(test2) << endl;
   // test2 >> q;
   // cout << q << endl;

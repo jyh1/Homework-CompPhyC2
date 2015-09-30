@@ -24,10 +24,11 @@ typedef function<ParseState(istream &)> Parser;
 
 extern Parser spaceParser;
 extern Parser deleteSpaces;
-
+extern Parser blankChar;
+extern Parser testBlankChar;
 
 Parser parseString(string &s);
 Parser parseUntilSucceed(Parser, Parser);
-
+Parser backward(Parser &p);
 
 #endif
