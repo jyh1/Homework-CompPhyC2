@@ -19,7 +19,6 @@ ParseState deleteComment(istream &input){
 
 Parser deleteComments = parseUntilFailed(deleteComment);
 
-//Impletation of particular parser
 Parser makeAngleParser(double &phi){
   return [&phi](istream& input){
             if (makeDoubleParser(phi)(input) == ParseSucceed){
@@ -32,7 +31,7 @@ Parser makeAngleParser(double &phi){
 
 
 
-Parser parseZmatrixcartesian(Zmatrix * & data){
+Parser makeZmatrixcartesianParser(Zmatrix * & data){
   return [&data](istream &input){
           int id;
           string name("");
@@ -49,7 +48,7 @@ Parser parseZmatrixcartesian(Zmatrix * & data){
 }
 
 
-Parser parseZmatrixsecond(Zmatrix *& data){
+Parser makeZmatrixsecondParser(Zmatrix *& data){
   return [&data](istream & input){
           int id,r3id;
           string name("");
@@ -64,7 +63,7 @@ Parser parseZmatrixsecond(Zmatrix *& data){
         };
 }
 
-Parser parseZmatrixthird(Zmatrix *& data){
+Parser makeZmatrixthirdParser(Zmatrix *& data){
   return [&data](istream & input){
           int id,r3id, r2id;
           string name("");
@@ -80,7 +79,7 @@ Parser parseZmatrixthird(Zmatrix *& data){
         };
 }
 
-Parser parseZmatrixmatrix(Zmatrix *& data){
+Parser makeZmatrixmatrixParser(Zmatrix *& data){
   return [&data](istream & input){
           int id,r3id, r2id, r1id;
           string name("");
@@ -97,17 +96,49 @@ Parser parseZmatrixmatrix(Zmatrix *& data){
         };
 }
 
-Parser parseZmatrix(Zmatrix *& data){
+Parser makeZmatrixParser(Zmatrix *& data){
   return [&data] (istream & input){
-      list<Parser> parsers = {parseZmatrixmatrix(data),
-                              parseZmatrixthird(data),
-                              parseZmatrixcartesian(data),
-                              parseZmatrixsecond(data)};
+      list<Parser> parsers = {makeZmatrixmatrixParser(data),
+                              makeZmatrixthirdParser(data),
+                              makeZmatrixcartesianParser(data),
+                              makeZmatrixsecondParser(data)};
       return parseParallel(parsers)(input);
     };
 }
 
-// //test part
+
+Parser makeZmatrixListParser(list<Zmatrix*> &matrixlist){
+  return [&matrixlist] (istream &input){
+          Zmatrix *parsed;
+          if (makeZmatrixParser(parsed)(input) == ParseSucceed){
+            matrixlist.push_back(parsed);
+            return ParseSucceed;
+          }
+          return ParseFailed;
+        };
+}
+
+
+int main(int argc, char const *argv[]) {
+  char c[100];
+  list<Zmatrix*> lis;
+  Parser p = makeZmatrixListParser(lis);
+  stringstream test1("\n 1  A1  0.0  0.0  0.0  \n#fsdfsdf");
+  stringstream test2("\n 2  A2  1  1.5");
+  stringstream test3(" 3 A3  2  1.5  1  109.5");
+  stringstream test4(" 8 A8 7 1.5 6  109.5  5 180.0");
+  p(test1);p(test2);p(test3);p(test4);
+  for (auto i = lis.begin(); i != lis.end();i++){
+    (*i)->print(cout);
+  }
+  cout << deleteComment(test1) << endl;
+  return 0;
+}
+
+
+
+
+// //test1
 // int main(int argc, char const *argv[]) {
 //   double phi=-1,d;
 //   int id=-1;
@@ -121,19 +152,19 @@ Parser parseZmatrix(Zmatrix *& data){
 //   // cout << char(cin.peek()) << endl;
 //   // cout << makeIntParser(id)(cin) << endl;
 //   Zmatrix *aa;
-//   // cout << parseZmatrixmatrix(aa)(test1) << endl;
+//   // cout << makeZmatrixmatrixParser(aa)(test1) << endl;
 //   Zmatrix *matrix;
 //   // for (auto i = test.begin(); i != test.end(); i++){
-//     parseZmatrix(matrix)(test1);
+//     makeZmatrixParser(matrix)(test1);
 //     cout << (matrix -> type) << endl;
 //     matrix->print(cout);
-//     parseZmatrix(matrix)(test2);
+//     makeZmatrixParser(matrix)(test2);
 //     cout << (matrix -> type) << endl;
 //     matrix->print(cout);
-//     parseZmatrix(matrix)(test3);
+//     makeZmatrixParser(matrix)(test3);
 //     cout << (matrix -> type) << endl;
 //     matrix->print(cout);
-//     parseZmatrix(matrix)(test4);
+//     makeZmatrixParser(matrix)(test4);
 //     cout << (matrix -> type) << endl;
 //     matrix->print(cout);
 //   //   (*matrix).print(cout);

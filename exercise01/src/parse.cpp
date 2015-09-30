@@ -29,7 +29,15 @@ Parser alwaysBackward(Parser p){  //go back if parser p failed
               };
 }
 
-
+Parser parseWholeLine(Parser p){
+  return [p] (istream &input){
+              if (p(input) == ParseSucceed){
+                input.ignore(INF, '\n');
+                return ParseSucceed;
+              }
+              return ParseFailed;
+            };
+}
 
 //
 

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include <functional>
+#include <limits>
 
 using namespace std;
 using std::string;
@@ -36,7 +38,8 @@ Parser parseUntilSucceed(Parser, Parser);
 Parser parseParallel(list<Parser>);
 Parser backward(Parser);
 Parser alwaysBackward(Parser);
-Parser alwaysSucceed(Parser p);
+Parser alwaysSucceed(Parser);
+Parser parseWholeLine(Parser);
 
 
 //important parser combinator
