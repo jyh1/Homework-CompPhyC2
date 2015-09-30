@@ -4,6 +4,7 @@
 #include "zmatrix.h"
 #include "parse.h"
 #include "parserex1.h"
+#include <fstream>
 
 using namespace std;
 using std::string;
@@ -17,7 +18,7 @@ ParseState deleteComment(istream &input){
 }
 
 
-Parser deleteComments = parseUntilFailed(deleteComment);
+Parser deleteComments = alwaysSucceed(parseUntilFailed(deleteComment));
 
 Parser makeAngleParser(double &phi){
   return [&phi](istream& input){
@@ -118,22 +119,44 @@ Parser makeZmatrixListParser(list<Zmatrix*> &matrixlist){
         };
 }
 
+Parser makeZmatrixFileParser(list<Zmatrix*> &matrixlist){
+  return [&matrixlist] (istream &input){
+          list<Parser> parsers = {deleteComments,
+                            parseWholeLine(makeZmatrixListParser(matrixlist))};
+          return parseUntilFailed(parseSerial(parsers))(input);
+        };
+}
 
+//file test
 int main(int argc, char const *argv[]) {
-  char c[100];
-  list<Zmatrix*> lis;
-  Parser p = makeZmatrixListParser(lis);
-  stringstream test1("\n 1  A1  0.0  0.0  0.0  \n#fsdfsdf");
-  stringstream test2("\n 2  A2  1  1.5");
-  stringstream test3(" 3 A3  2  1.5  1  109.5");
-  stringstream test4(" 8 A8 7 1.5 6  109.5  5 180.0");
-  p(test1);p(test2);p(test3);p(test4);
-  for (auto i = lis.begin(); i != lis.end();i++){
-    (*i)->print(cout);
+  fstream ifs;
+  ifs.open ("../../data/zmatrix_in.dat", std::ifstream::in);
+  list<Zmatrix*> matrixes;
+  makeZmatrixFileParser(matrixes)(ifs);
+  for (auto i = matrixes.begin(); i != matrixes.end(); i++){
+    (*i) -> print(cout);
   }
-  cout << deleteComment(test1) << endl;
   return 0;
 }
+
+
+
+//test2
+// int main(int argc, char const *argv[]) {
+//   char c[100];
+//   list<Zmatrix*> lis;
+//   Parser p = makeZmatrixListParser(lis);
+//   stringstream test1("\n 1  A1  0.0  0.0  0.0  \n#fsdfsdf");
+//   stringstream test2("\n 2  A2  1  1.5");
+//   stringstream test3(" 3 A3  2  1.5  1  109.5");
+//   stringstream test4(" 8 A8 7 1.5 6  109.5  5 180.0");
+//   p(test1);p(test2);p(test3);p(test4);
+//   for (auto i = lis.begin(); i != lis.end();i++){
+//     (*i)->print(cout);
+//   }
+//   // cout << deleteComment(test1) << endl;
+//   return 0;
+// }
 
 
 
