@@ -25,7 +25,7 @@ void Zmatrix::print(ostream &output) const {
 
   switch (type) {
     case cartesian:
-      output << coord.matrix().transpose();
+      output << coord[0] << ' ' << coord[1] << ' ' << coord[2];
       break;
     case matrix:
       output << r3id << ' ' <<
