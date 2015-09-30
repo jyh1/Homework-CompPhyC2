@@ -1,3 +1,6 @@
+#ifndef PARSE_H
+#define PARSE_H
+
 #include <iostream>
 #include <Eigen/Dense>
 #include "zmatrix.h"
@@ -13,13 +16,18 @@ const unsigned long int INF =  numeric_limits<streamsize>::max();
 const int MAXNAMESIZE = 10;
 const double degree = 0.017453292519943295;
 
-enum ParseState {ParseSucced, ParseFailed};
+enum ParseState {ParseSucceed, ParseFailed};
 
 typedef function<ParseState(istream &)> Parser;
+
+
 
 extern Parser spaceParser;
 extern Parser deleteSpaces;
 
-Parser parseString(string &s);
 
-Parser parseUntilSucced(Parser &p1, Parser &p2);
+Parser parseString(string &s);
+Parser parseUntilSucceed(Parser, Parser);
+
+
+#endif

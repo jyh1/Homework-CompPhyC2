@@ -18,7 +18,7 @@ Parser backward(Parser &p){  //go back if parser p failed
                   input.seekg(pos);
                   return ParseFailed;
                 }
-                return ParseSucced;
+                return ParseSucceed;
               };
 }
 
@@ -27,162 +27,229 @@ Parser makeStringParser(string &s){
             char c;
             if (! (input >> c)) return ParseFailed;
             s += c;
-            return ParseSucced;
+            return ParseSucceed;
           };
 }
 
-Parser makeAngleParser(double &phi){
+Parser makeDoubleParser(double &phi){
   Parser p = [&phi](istream &input){
               double temp;
               if (input >> temp){
-                phi = temp * degree;
-                return ParseSucced;
+                phi = temp;
+                return ParseSucceed;
               }
               return ParseFailed;
             };
   return (backward(p));
 }
 
-Parser makeIDParser(int &id){
+Parser makeIntParser(int &id){
   Parser p = [&id](istream &input){
               int temp;
               if (input >> temp){
                 id = temp;
-                return ParseSucced;
+                return ParseSucceed;
               }
               return ParseFailed;
         };
   return (backward(p));
 }
 
-Parser makeNameParser(string &s){
+Parser makeNameParser(string &s){//name is the longest suffix of string before space
   Parser p = makeStringParser(s);
-  return parseUntilSucced(p, spaceParser);
+  return parseUntilSucceed(p, spaceParser);
 }
 
-Parser makeCharParser(char c){
-  return [c](istream &input){
-          if (input.peek() == c){
+
+// Parser makeCharParser(char c){
+//   return [c](istream &input){
+//           if (input.peek() == c){
+//             input.get();
+//             return ParseSucceed;
+//           }
+//           return ParseFailed;
+//         };
+// }
+
+Parser makeCharsParser(string s){ //parse succeed if any char in the string s
+  return [s](istream &input){
+          if (s.find(input.peek()) != std::string::npos){
             input.get();
-            return ParseSucced;
+            return ParseSucceed;
           }
           return ParseFailed;
         };
 }
 
 
-Parser parseUntilFailed(Parser &p){
+Parser parseUntilFailed(Parser p){
   return [p](istream &input){
           if (p(input) == ParseFailed) return ParseFailed;
-          while (p(input) == ParseSucced){};
-          return ParseSucced;
+          while (p(input) == ParseSucceed){};
+          return ParseSucceed;
         };
 }
 
-Parser parseUntilSucced(Parser &p1, Parser &p2){
+Parser parseUntilSucceed(Parser p1, Parser p2){
   return [p1, p2](istream &input){
-          if (p2(input) == ParseSucced) return ParseFailed;
+          if (p2(input) == ParseSucceed) return ParseFailed;
           while (p2(input) == ParseFailed) p1(input);
-          return ParseSucced;
+          return ParseSucceed;
         };
 }
 
-Parser parseParallel(list<Parser> &parsers){  //return fail if none of the parser in list failed
+Parser parseParallel(list<Parser> parsers){  //return fail if none of the parser in list failed
   return [parsers](istream &input){
           for (auto i = parsers.begin(); i != parsers.end(); i++){
-            if ( (*i)(input) == ParseSucced){
-              return ParseSucced;
+            if ( (*i)(input) == ParseSucceed){
+              return ParseSucceed;
             }
           }
           return ParseFailed;
         };
 }
 
+Parser parseSerial(list<Parser> parsers,Parser middle = deleteSpaces){
+  Parser p = [parsers, middle](istream &input){
+              for (auto i = parsers.begin(); i!= parsers.end(); i++){
+                  middle(input);
+                  if ( (*i)(input) == ParseFailed ){
+                    return ParseFailed;
+                  }
+                }
+              return ParseSucceed;
+            };
+  return (backward(p));
+}
 
 
-
-
-//Parser
-Parser spaceParser = makeCharParser(' ');
-
-Parser deleteSpaces = parseUntilFailed(spaceParser);
-
-ParseState commentParser(istream &input){
-  if (input.peek() == '#'){
-    input.ignore(INF, '\n');
-    return ParseSucced;
-  }
-  return ParseFailed;
+Parser alwaysSucceed(Parser p){
+  return [p](istream &input){
+          p(input);
+          return ParseSucceed;
+        };
 }
 
 
 
-//Parser Combinator
+//Parser
+ParseState nullParser(istream &input){
+  return ParseSucceed;
+}
+
+Parser spaceParser = makeCharsParser(" ");
+
+Parser deleteSpaces = parseUntilFailed(spaceParser);
+
+ParseState deleteComment(istream &input){
+  if (input.peek() == '#'){
+    input.ignore(INF, '\n');
+    return ParseSucceed;
+  }
+  return ParseFailed;
+}
+
+Parser deleteComments = parseUntilFailed(deleteComment);
 
 
 
-// int deleteComments(istream &input){
-//   while (input.peek() == '#'){
-//     if (input.peek() == EOF) {
-//       return -1;
-//     }
-//     input.ignore(INF, '\n');
-//   }
-//   return 0;
-// }
+//Impletation of particular parser
+Parser makeAngleParser(double &phi){
+  return [&phi](istream& input){
+            if (makeDoubleParser(phi)(input) == ParseSucceed){
+              phi *= degree;
+              return ParseSucceed;
+            }
+            return ParseFailed;
+          };
+}
 
 
-// int deleteChars(istream &input, char c = ' '){
-//   while (input.peek() == c){
-//     input.ignore();
-//   }
-//   return 0;
-// }
-//
-// string parseName(istream &input){
-//   deleteChars(input);
-//   char c[MAXNAMESIZE];
-//   input.get(c, MAXNAMESIZE, ' ');
-//   string name(c);
-//   return name;
-// }
-//
-//
-//
-//
-// ParseState parseZmatrixcartesian(istream &input, Zmatrix &parsed){
-//   double d1, d2, d3;
-//   if (! (input >> d1 >> d2 >> d3)) {
-//     return ParseFailed;
-//   }
-//   Vector3d temp(d1, d2, d3);
-//   parsed.coord = temp;
-//   parsed.type = cartesian;
-//   return ParseSucced;
-// }
-//
-//
-// ParseState parseZmatrixmatrix(istream &input, Zmatrix &parsed){
-//   if (! (input >> parsed.r3id >> parsed.l >> parsed.r2id >> parsed.theta
-//               >> parsed.r1id >> parsed.phi)){
-//     return ParseFailed;
-//   }
-//   parsed.theta *= degree; parsed.phi *= degree;
-//   parsed.type = matrix;
-//   return ParseSucced;
-// }
+
+Parser parseZmatrixcartesian(Zmatrix * & data){
+  return [&data](istream &input){
+          int id;
+          string name("");
+          double x, y, z;
+          list<Parser> parsers = {makeIntParser(id), makeNameParser(name),
+                                  makeDoubleParser(x), makeDoubleParser(y),
+                                  makeDoubleParser(z)};
+          if ( parseSerial(parsers)(input) == ParseSucceed ){
+            data =  (new Zmatrix(id, x, y, z));
+            return ParseSucceed;
+          }
+          return ParseFailed;
+        };
+}
+
+
+Parser parseZmatrixsecond(Zmatrix *& data){
+  return [&data](istream & input){
+          int id,r3id;
+          string name("");
+          double l;
+          list<Parser> parsers = {makeIntParser(id), makeNameParser(name),
+                                  makeIntParser(r3id), makeDoubleParser(l)};
+          if (parseSerial(parsers)(input) == ParseSucceed){
+            data = (new Zmatrix(id, r3id, l));
+            return ParseSucceed;
+          }
+          return ParseFailed;
+        };
+}
+
+Parser parseZmatrixthird(Zmatrix *& data){
+  return [&data](istream & input){
+          int id,r3id, r2id;
+          string name("");
+          double l, theta;
+          list<Parser> parsers = {makeIntParser(id), makeNameParser(name),
+                                  makeIntParser(r3id), makeDoubleParser(l),
+                                  makeIntParser(r2id), makeAngleParser(theta)};
+          if (parseSerial(parsers)(input) == ParseSucceed){
+            data = (new Zmatrix(id, r3id, l, r2id, theta));
+            return ParseSucceed;
+          }
+          return ParseFailed;
+        };
+}
+
+Parser parseZmatrixmatrix(Zmatrix *& data){
+  return [&data](istream & input){
+          int id,r3id, r2id, r1id;
+          string name("");
+          double l, theta, phi;
+          list<Parser> parsers = {makeIntParser(id), makeNameParser(name),
+                                  makeIntParser(r3id), makeDoubleParser(l),
+                                  makeIntParser(r2id), makeAngleParser(theta),
+                                  makeIntParser(r1id), makeAngleParser(phi)};
+          if (parseSerial(parsers)(input) == ParseSucceed){
+            data = (new Zmatrix(id, r3id, l, r2id, theta, r1id, phi));
+            return ParseSucceed;
+          }
+          return ParseFailed;
+        };
+}
 
 
 int main(int argc, char const *argv[]) {
   double phi=-1,d;
   int id=-1;
-  char c, b[100];
+  char c, b[100],q;
   string ss("");
-  list<Parser> parsers = {makeNameParser(ss),makeIDParser(id), makeAngleParser(phi)};
+  list<Parser> parsers = {makeIntParser(id), makeDoubleParser(phi),makeNameParser(ss)};
   cin.getline(b, 100);
   string s(b);
-  stringstream test(s);
-  cout << parseParallel(parsers)(test) <<endl;
-  cout << phi << ' ' << id << ' '<< ss << endl;
+  stringstream test(s), test2(s);
+  // cout << parseSerial(parsers, nullParser)(test) <<endl;
+  // cout << phi << ' ' << id << ' '<< ss << endl;
+  // test >> q;
+  // cout << q << endl;
+  Zmatrix *matrix;
+  cout << parseZmatrixmatrix(matrix)(test) << endl;
+  (*matrix).print(cout);
+  // cout << makeNameParser(ss)(test2) << endl;
+  // test2 >> q;
+  // cout << q << endl;
   return 0;
 }
