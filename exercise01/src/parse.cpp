@@ -10,7 +10,7 @@ using namespace Eigen;
 using std::string;
 
 
-Parser backward(Parser &p){  //go back if parser p failed
+Parser backward(Parser p){  //go back if parser p failed
   return [p] (istream &input){
                 auto pos = input.tellg();
                 if (p(input) == ParseFailed){
@@ -22,7 +22,7 @@ Parser backward(Parser &p){  //go back if parser p failed
               };
 }
 
-Parser alwaysBackward(Parser &p){  //go back if parser p failed
+Parser alwaysBackward(Parser p){  //go back if parser p failed
   return [p] (istream &input){
                 auto pos = input.tellg();
                 ParseState state = p(input);
@@ -69,7 +69,7 @@ Parser makeIntParser(int &id){
 
 Parser makeNameParser(string &s){//name is the longest suffix of string before space
   Parser p = makeStringParser(s);
-  return parseUntilSucceed(p, spaceParser);
+  return parseUntilSucceed(p, blankChar);
 }
 
 

@@ -22,13 +22,30 @@ typedef function<ParseState(istream &)> Parser;
 
 
 
+ParseState nullParser(istream &input);
 extern Parser spaceParser;
 extern Parser deleteSpaces;
 extern Parser blankChar;
 extern Parser testBlankChar;
 
-Parser parseString(string &s);
+
+Parser makeDoubleParser(double&);
+Parser makeIntParser(int&);
+Parser makeCharsParser(string&);
+Parser makeStringParser(string&);
+Parser makeNameParser(string &s);
+
+
+Parser parseUntilFailed(Parser);
 Parser parseUntilSucceed(Parser, Parser);
-Parser backward(Parser &p);
+Parser parseParallel(list<Parser>);
+Parser backward(Parser);
+Parser alwaysBackward(Parser);
+
+
+//important parser combinator
+Parser parseParallel(list<Parser>);
+Parser parseSerial(list<Parser> parsers,Parser middle);
+
 
 #endif
