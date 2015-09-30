@@ -9,6 +9,8 @@ using namespace Eigen;
 using namespace std;
 enum ZmatrixType {cartesian, second, third, matrix};
 
+const Vector3d DEFAULTXAXIS(0, 0, 1);
+
 class Zmatrix
 {
 public:
@@ -34,11 +36,14 @@ public:
           const int &r2idx, const double &thetax):
     id(idx), r3id(r3idx), l(lx), r2id(r2idx), theta(thetax), type(third){}
 
-  Zmatrix(const int &idx): id(idx){}
+  Zmatrix(){}
 
-  Zmatrix(){};
+  Vector3d toCartesian(vector<Zmatrix*> &);
 
-  void print(ostream &);
+  void print(ostream &) const;
+
+private:
+  Vector3d getCoordinateFromAxes(const vector<Vector3d> & );
 };
 
 #endif
