@@ -89,16 +89,16 @@ Vector3d Zmatrix::getCoordinateFromAxes(const vector<Vector3d> & axes){
 
 void Zmatrix::cartesian2Matrix(const vector<Vector3d> & coords,
                                 int r1, int r2, int r3){
+  if(type != cartesian){
+    cerr << "Error in cartesian2Matrix!" << endl;
+    return;
+  }
   type = matrix;
   r3id = r3; r2id = r2;r1id = r1;
   getMatrixAngle(coords.at(r1), coords.at(r2), coords.at(r3));
 }
 
 void Zmatrix::getMatrixAngle(const Vector3d & r1, const Vector3d & r2, const Vector3d & r3){
-  if(type != cartesian){
-    cerr << "Error in cartesian2Matrix!" << endl;
-    return;
-  }
   Vector3d r21 = r1 - r2, r23 = r3 - r2,
                   r34 = coord - r3;
   l = r34.norm();
@@ -107,15 +107,15 @@ void Zmatrix::getMatrixAngle(const Vector3d & r1, const Vector3d & r2, const Vec
 }
 
 //ex2test
-int main(int argc, char const *argv[]) {
-  Vector3d v1(0.0, 0.0, 0),
-            v2(1.5,0,0),v3(2.00071,1.41396,0);
-  Zmatrix s(1,3.50071,1.41396,0);
-  // s.cartesian2Matrix(v1,v2,v3);
-  s.print();
-  cout << vectorAngle(v1,v2) << endl;
-  return 0;
-}
+// int main(int argc, char const *argv[]) {
+//   Vector3d v1(0.0, 0.0, 0),
+//             v2(1.5,0,0),v3(2.00071,1.41396,0);
+//   Zmatrix s(1,3.50071,1.41396,0);
+//   // s.cartesian2Matrix(v1,v2,v3);
+//   s.print();
+//   cout << vectorAngle(v1,v2) << endl;
+//   return 0;
+// }
 
 //ex1test
 // int main()

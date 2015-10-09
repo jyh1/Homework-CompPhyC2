@@ -40,10 +40,14 @@ public:
 
   Vector3d toCartesian(vector<Zmatrix*> &);
 
+  void cartesian2Matrix(const vector<Vector3d> &, int r1, int r2, int r3);
+
   void print(ostream &) const;
+  void print() const;
 
 private:
   Vector3d getCoordinateFromAxes(const vector<Vector3d> & );
+  void getMatrixAngle(const Vector3d & r1, const Vector3d & r2, const Vector3d & r3);
 };
 
 #endif
