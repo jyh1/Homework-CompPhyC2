@@ -2,6 +2,7 @@
 #include <string>
 #include <list>
 #include "parse.h"
+#include <sstream>
 
 using namespace std;
 using std::string;
@@ -30,13 +31,13 @@ Parser alwaysBackward(Parser p){  //go back if parser p failed
 }
 
 Parser parseWholeLine(Parser p){
-  return [p] (istream &input){
-              if (p(input) == ParseSucceed){
-                input.ignore(INF, '\n');
-                return ParseSucceed;
-              }
-              return ParseFailed;
+  Parser p1 = [p] (istream &input){
+              char line[MAXLINE];
+              input.getline(line,MAXLINE);
+              istringstream inputline(line);
+              return p(inputline);
             };
+  return backward(p1);
 }
 
 //
