@@ -9,6 +9,7 @@ using std::string;
 using namespace std;
 using namespace Eigen;
 
+const double Degree = 0.017453292519943295;
 
 double vectorAngle(const Vector3d &r1,const Vector3d &r2){
   return(acos(r1.dot(r2)/r1.norm()/r2.norm()));
@@ -34,13 +35,13 @@ void Zmatrix::print(ostream &output) const {
     case matrix:
       output << r3id << ' ' <<
         l << ' ' << r2id <<  ' '
-        << theta << ' ' << r1id << ' ' << phi;
+        << theta / Degree<< ' ' << r1id << ' ' << phi / Degree;
       break;
     case second:
       output << r3id << ' ' << l;
       break;
     case third:
-      output << r3id << ' ' << l << ' ' << r2id << ' ' << theta;
+      output << r3id << ' ' << l << ' ' << r2id << ' ' << theta / Degree;
       break;
   }
   output << endl;
@@ -87,7 +88,7 @@ Vector3d Zmatrix::getCoordinateFromAxes(const vector<Vector3d> & axes){
                   sin(theta)*sin(phi) * k - cos(theta) * i);
 }
 
-void Zmatrix::cartesian2Matrix(const vector<Vector3d> & coords,
+void Zmatrix::fromCatesian(const vector<Vector3d> & coords,
                                 int r1, int r2, int r3){
   if(type != cartesian){
     cerr << "Error in cartesian2Matrix!" << endl;
@@ -95,16 +96,51 @@ void Zmatrix::cartesian2Matrix(const vector<Vector3d> & coords,
   }
   type = matrix;
   r3id = r3; r2id = r2;r1id = r1;
-  getMatrixAngle(coords.at(r1), coords.at(r2), coords.at(r3));
+  getMatrixPhi(coords.at(r1), coords.at(r2), coords.at(r3));
+  getMatrixTheta(coords.at(r2), coords.at(r3));
+  getMatrixL(coords.at(r3));
 }
 
-void Zmatrix::getMatrixAngle(const Vector3d & r1, const Vector3d & r2, const Vector3d & r3){
+void Zmatrix::fromCatesian(const vector<Vector3d> & coords,
+                                  int r2, int r3){
+  if(type != cartesian){
+    cerr << "Error in catesian2Third!" << endl;
+    return;
+  }
+  type = third;
+  r3id = r3; r2id = r2;
+  getMatrixTheta(coords.at(r2), coords.at(r3));
+  getMatrixL(coords.at(r3));
+}
+
+void Zmatrix::fromCatesian(const vector<Vector3d> & coords,
+                                  int r3){
+  if(type != cartesian){
+    cerr << "Error in catesian2Second!" << endl;
+    return;
+  }
+  type = second;
+  r3id = r3;
+  getMatrixL(coords.at(r3));
+}
+
+
+void Zmatrix::getMatrixPhi(const Vector3d & r1, const Vector3d & r2, const Vector3d & r3){
   Vector3d r21 = r1 - r2, r23 = r3 - r2,
                   r34 = coord - r3;
-  l = r34.norm();
-  theta = vectorAngle(r34,-r23);
   phi = vectorAngle(r21.cross(r23),- r23.cross(r34));
 }
+
+void Zmatrix::getMatrixTheta(const Vector3d & r2, const Vector3d & r3){
+  Vector3d r23 = r3 - r2,
+            r34 = coord - r3;
+  theta = vectorAngle(r34,-r23);
+}
+
+void Zmatrix::getMatrixL(const Vector3d & r3){
+  l = (coord - r3).norm();
+}
+
 
 //ex2test
 // int main(int argc, char const *argv[]) {

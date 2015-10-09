@@ -13,6 +13,8 @@ using std::string;
 
 const unsigned long int INF =  numeric_limits<streamsize>::max();
 
+const unsigned long int MAXLINE = 100;
+
 enum ParseState {ParseSucceed, ParseFailed};
 
 typedef function<ParseState(istream &)> Parser;
