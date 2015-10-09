@@ -2,7 +2,7 @@
 #include <vector>
 #include <math.h>
 #include "zmatrix.h"
-#include "parserex1.h"
+#include "parsezmatrix.h"
 #include <fstream>
 
 using namespace Eigen;
