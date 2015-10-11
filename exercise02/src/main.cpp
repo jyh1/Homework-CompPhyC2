@@ -10,7 +10,7 @@ using namespace std;
 
 int main(int argc, char const *argv[]) {
   fstream ifs;
-  ifs.open ("data.dat", std::ifstream::in);
+  ifs.open ("../../exercise01/results/xyz.dat", std::ifstream::in);
   list<Zmatrix*> matrixes;
   makeZmatrixFileParser(matrixes)(ifs);
 
