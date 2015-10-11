@@ -9,9 +9,13 @@ using namespace Eigen;
 using namespace std;
 
 
-int main(){
+int main(int argv, char** argc){
     fstream ifs;
-    ifs.open ("../../data/zmatrix_in.dat", std::ifstream::in);
+    if(argv == 1){
+      ifs.open ("../data/zmatrix_in.dat", std::ifstream::in);
+    }else{
+      ifs.open(argc[1], std::ifstream::in);
+    }
     list<Zmatrix*> matrixes;
     makeZmatrixFileParser(matrixes)(ifs);
     std::vector<Zmatrix*> vmatrix(12);
