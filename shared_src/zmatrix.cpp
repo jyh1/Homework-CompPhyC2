@@ -3,6 +3,8 @@
 #include <Eigen/Dense>
 #include <iostream>
 #include <math.h>
+
+#include <const.h>
 #include "zmatrix.h"
 using std::string;
 
@@ -128,7 +130,13 @@ void Zmatrix::fromCatesian(const vector<Vector3d> & coords,
 void Zmatrix::getMatrixPhi(const Vector3d & r1, const Vector3d & r2, const Vector3d & r3){
   Vector3d r21 = r1 - r2, r23 = r3 - r2,
                   r34 = coord - r3;
-  phi = vectorAngle(r21.cross(r23),- r23.cross(r34));
+  auto r2123 = r21.cross(r23);
+  auto r2334 = - r23.cross(r34);
+  phi = vectorAngle(r2123, r2334);
+
+  if(r2123.cross(r2334).dot(r21) > 0){
+    phi = 2 * pi - phi;
+  }
 }
 
 void Zmatrix::getMatrixTheta(const Vector3d & r2, const Vector3d & r3){

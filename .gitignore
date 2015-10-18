@@ -1,7 +1,9 @@
 *.o
 
+*.sh
+
 bin/
 
 results/
 
-
+exercisexx/

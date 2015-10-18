@@ -18,7 +18,7 @@ int main(int argv, char** argc){
     }
     list<Zmatrix*> matrixes;
     makeZmatrixFileParser(matrixes)(ifs);
-    std::vector<Zmatrix*> vmatrix(12);
+    std::vector<Zmatrix*> vmatrix(matrixes.size() + 2);
     for (auto i = matrixes.begin(); i != matrixes.end(); i++){
       vmatrix.at((*i)->id) = *i;
     }

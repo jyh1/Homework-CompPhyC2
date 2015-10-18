@@ -20,7 +20,7 @@ Parser backward(Parser p){  //go back if parser p failed
               };
 }
 
-Parser alwaysBackward(Parser p){  //go back if parser p failed
+Parser alwaysBackward(Parser p){  //always goback
   return [p] (istream &input){
                 auto pos = input.tellg();
                 ParseState state = p(input);
