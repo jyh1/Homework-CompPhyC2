@@ -78,7 +78,7 @@ void monteCarloPhiSample(const int& L, const int& M,
                             double q = 2 * pi * qTemp / phis.size();//partition function
                             double U = totalBy(phis, energyProb) / qTemp;
                             double helmF = - kbt * log(q);
-                            double entropy = (U - helmF)/kbt * kb;
+                            double entropy = (U - helmF)/kbt * kbt;
                             std::list<double> ans = {helmF, U, entropy};
                             return ans;
                           };
