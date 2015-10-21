@@ -12,7 +12,7 @@ using namespace std;
 int main(int argv, char** argc){
     fstream ifs;
     if(argv == 1){
-      ifs.open ("../data/zmatrix_in.dat", std::ifstream::in);
+      ifs.open ("../../data/zmatrix_in.dat", std::ifstream::in);
     }else{
       ifs.open(argc[1], std::ifstream::in);
     }
