@@ -18,7 +18,7 @@ int main(int argc, char const *argv[]) {
   }
 
   list<Zmatrix*> matrixes;
-  makeZmatrixFileParser(matrixes)(ifs);
+  makeZmatrixFileParser(matrixes)(ifs);//defined in parsezmatrix.h
 
   vector<Vector3d> coord(matrixes.size() + 2);
   for (auto i:matrixes){

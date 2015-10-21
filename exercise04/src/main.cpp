@@ -18,13 +18,13 @@ int main(int argc, char const *argv[]) {
   }
 
   double l, theta, kbt, kphi;
-  makeParametersParser(l, theta, kbt, kphi)(ifs);
+  makeParametersParser(l, theta, kbt, kphi)(ifs);//defined in pasezmatrix.h
 
   int L, M;
-  Parser req = makeRequirementsParser(L, M);
+  Parser req = makeRequirementsParser(L, M);//defined in parsezmatrix.h
 
   while (req(ifs) == ParseSucceed){
-    monteCarloPhiSample(L, M, kbt, kphi, getUniformRandomPhi);
+    monteCarloPhiSample(L, M, kbt, kphi, getUniformRandomPhi);//defined in montecarlo.h
   }
 
   return 0;

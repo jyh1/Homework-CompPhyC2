@@ -17,7 +17,7 @@ int main(int argv, char** argc){
       ifs.open(argc[1], std::ifstream::in);
     }
     list<Zmatrix*> matrixes;
-    makeZmatrixFileParser(matrixes)(ifs);
+    makeZmatrixFileParser(matrixes)(ifs);//defined in parsezmatrix.h
     std::vector<Zmatrix*> vmatrix(matrixes.size() + 2);
     for (auto i = matrixes.begin(); i != matrixes.end(); i++){
       vmatrix.at((*i)->id) = *i;
