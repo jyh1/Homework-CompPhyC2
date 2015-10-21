@@ -26,4 +26,11 @@ Parser makeZmatrixParser (Zmatrix *&);
 Parser makeZmatrixListParser(list<Zmatrix*> &);
 Parser makeZmatrixFileParser(list<Zmatrix*> &);
 
+//for t4 t5
+Parser makeParametersParser(double & l, double & theta,
+                            double &kbt, double & kphi);
+
+Parser makeRequirementsParser(int & L, int &M);
+
+
 #endif

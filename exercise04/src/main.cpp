@@ -18,18 +18,12 @@ int main(int argc, char const *argv[]) {
   }
 
   double l, theta, kbt, kphi;
-  list<Parser> ps = {deleteComments,
-                    makeDoubleParser(l),
-                    makeAngleParser(theta),
-                    makeDoubleParser(kbt),
-                    makeDoubleParser(kphi),
-                  };
-  parseSerial(ps)(ifs);
+  makeParametersParser(l, theta, kbt, kphi)(ifs);
 
   int L, M;
-  std::list<Parser> req = {deleteComments,
-                      makeIntParser(L), makeIntParser(M)};
-  while (parseSerial(req)(ifs) == ParseSucceed){
+  Parser req = makeRequirementsParser(L, M);
+
+  while (req(ifs) == ParseSucceed){
     monteCarloPhiSample(L, M, kbt, kphi, getUniformRandomPhi);
   }
 

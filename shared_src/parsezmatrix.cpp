@@ -131,6 +131,27 @@ Parser makeZmatrixFileParser(list<Zmatrix*> &matrixlist){
         };
 }
 
+
+//for t4 t5
+Parser makeParametersParser(double & l, double & theta,
+                            double &kbt, double & kphi){
+  std::list<Parser> ps = {deleteComments,
+                          makeDoubleParser(l),
+                          makeAngleParser(theta),
+                          makeDoubleParser(kbt),
+                          makeDoubleParser(kphi),
+                        };
+  return parseSerial(ps);
+}
+
+Parser makeRequirementsParser(int & L, int &M){
+  std::list<Parser> ps = {deleteComments,
+                          makeIntParser(L),
+                          makeIntParser(M)};
+  return parseSerial(ps);
+}
+
+
 // int main(int argc, char const *argv[]) {
 //   stringstream in("1 A1 0 0 0\n2");
 //   list<Zmatrix*> m;
