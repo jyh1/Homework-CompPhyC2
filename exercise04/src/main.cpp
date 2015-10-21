@@ -26,15 +26,10 @@ int main(int argc, char const *argv[]) {
                   };
   parseSerial(ps)(ifs);
 
-  // auto simulation = std::bind(monteCarloPhiSample,
-  //                             std::placeholders::_1, std::placeholders::_2,
-  //                             kbt, kphi,getUniformRandomPhi,std::cout
-  //                           );
   int L, M;
   std::list<Parser> req = {deleteComments,
                       makeIntParser(L), makeIntParser(M)};
   while (parseSerial(req)(ifs) == ParseSucceed){
-    // std::cout << L << std::endl;
     monteCarloPhiSample(L, M, kbt, kphi, getUniformRandomPhi);
   }
 
