@@ -10,11 +10,15 @@ using namespace std;
 using std::string;
 
 ParseState deleteComment(istream &input){
-  if (input.peek() == '#'){
-    input.ignore(INF, '\n');
-    return ParseSucceed;
-  }
-  return ParseFailed;
+  Parser p = [](istream &input){
+      parseUntilFailed(blankChar)(input);
+      if (input.peek() == '#'){
+        input.ignore(INF, '\n');
+        return ParseSucceed;
+      }
+      return ParseFailed;
+    };
+  return backward(p)(input);
 }
 
 

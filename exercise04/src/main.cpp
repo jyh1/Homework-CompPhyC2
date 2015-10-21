@@ -23,7 +23,7 @@ int main(int argc, char const *argv[]) {
                     makeAngleParser(theta),
                     makeDoubleParser(kbt),
                     makeDoubleParser(kphi),
-                    parseWholeLine(nullParser)};
+                  };
   parseSerial(ps)(ifs);
 
   // auto simulation = std::bind(monteCarloPhiSample,
