@@ -12,4 +12,5 @@ std::default_random_engine generator{rdev()};
 std::uniform_real_distribution<double> angle(0, 2*pi);
 auto getUniformRandomPhi = bind(angle, generator);
 
+
 #endif

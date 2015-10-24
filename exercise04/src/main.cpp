@@ -8,6 +8,20 @@
 #include <parsezmatrix.h>
 #include <montecarlo.h>
 
+class Simulationt4 : public Simulationfort4t5{
+
+public:
+  Simulationt4(double kbt,double kphi)
+    :Simulationfort4t5(getUniformRandomPhi,kbt, kphi){}
+
+private:
+  void consume(const double & phi){
+    integrateQTemp += bolzman(phi);
+    integrateEnergyBolzTemp += energy(phi) * bolzman(phi);
+    // std::cout << integrateQTemp << ' ' << ' ' << integrateEnergyBolzTemp << std::endl;
+  }
+};
+
 int main(int argc, char const *argv[]) {
   std:: fstream ifs;
 
@@ -22,9 +36,10 @@ int main(int argc, char const *argv[]) {
 
   int L, M;
   Parser req = makeRequirementsParser(L, M);//defined in parsezmatrix.h
+  Simulationt4 simulation(kbt, kphi);
 
   while (req(ifs) == ParseSucceed){
-    monteCarloPhiSample(L, M, kbt, kphi, getUniformRandomPhi);//defined in montecarlo.h
+    monteCarlo(L, M, simulation);//defined in montecarlo.h
   }
 
   return 0;

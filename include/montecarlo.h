@@ -11,24 +11,115 @@
 #include <const.h>
 #include <statistics.h>
 
+
 typedef std::function<double()> RandomGenerator;
 typedef std::function<double(double)> Func;
 typedef std::function<std::list<double>(const std::list<double> &)> Test;
 
+class Simulation {
+private:
+  RandomGenerator generator;
+  int N=0;
+protected:
+  std::list<std::string> quantityNames;
+public:
+  Simulation (RandomGenerator g){
+    generator = g;
+  }
+  virtual ~Simulation (){}
+
+private:
+  void simulateN(const int & n){
+    for(int i = 0; i != n ; i++){
+      consume(generator());
+    }
+    N += n;
+  }
+
+public:
+  std::list<double> runSimulation(const int & n){
+    simulateN(n);
+    auto ans = getResults();
+    reset();
+    return ans;
+  }
+
+  const std::list<std::string> & getQuantityNames() const{
+    return quantityNames;
+  }
+protected:
+  int getSimulationTimes() const {
+    return N;
+  }
+
+  void reset(){
+    N = 0;
+    resetOthers();
+  }
+
+protected:
+  virtual void consume(const double &){
+    std::cerr << "undefined consume function" << std::endl;
+  }
+
+  virtual void resetOthers(){
+    std::cerr << "undefined resetOthers" << std::endl;
+  }
+
+  virtual std::list<double> getResults(){
+    std::list<double> ans;
+    std::cerr << "undefined getResults" << std::endl;
+    return ans;
+  }
+};
+
+
+class Simulationfort4t5 : public Simulation{
+protected:
+  double integrateQTemp = 0;
+  double integrateEnergyBolzTemp = 0;
+private:
+  double kbt;
+  double kphi;
+protected:
+  double energy(const double & phi)const{
+    return 0.5 * kphi * (1 + cos(3 * phi));
+  }
+  double bolzman(const double & phi)const{
+    return exp(- kbt * energy(phi));
+  }
+public:
+  Simulationfort4t5(RandomGenerator g, double kbt1, double kphi1)
+    :Simulation(g),kbt(kbt1),kphi(kphi1){
+    quantityNames = {"Helmholtz-free-energy",
+                    "Internal-energy","Entropy"};
+  }
+
+  std::list<double> getResults(){
+    double q = integrateQTemp * 2 * pi / getSimulationTimes();
+    double U = integrateEnergyBolzTemp / integrateQTemp;
+    double helmF = - kbt * log(q);
+    double entropy = (U - helmF) / kbt;
+    std::list<double> ans = {helmF, U, entropy};
+    // std::cout << helmF << ' ' << U << ' '<<q<<' ' << entropy << std::endl;
+    return ans;
+  }
+private:
+  void resetOthers(){
+    integrateQTemp = 0;
+    integrateEnergyBolzTemp = 0;
+  }
+
+};
+
+
+
 void monteCarlo(const int &L, const int& M,
-                const RandomGenerator & rand,
-                const Test & tests,
-                const std::list<std::string> & names,
+                Simulation & simulation,
                 std::ostream& output = std::cout){
   std::list<std::list<double>> res;
   for(int i = 0; i != M; i++){
-    std::list<double> xs;
-    for(int j = 0; j != L; j++){
-      xs.push_back(rand());//random generator from argument
-    }
-
-    res.push_back(tests(xs));
-
+    res.push_back(simulation.runSimulation(L));
   }
 
   output<<"# number-of-conformers-to-sample(L) number-of-repetitions(M)"
@@ -36,6 +127,8 @@ void monteCarlo(const int &L, const int& M,
   output << L << ' ' << M << std::endl;
 
   output<<"# quantity-names ensamble-average error-range" << std::endl;
+
+  auto names = simulation.getQuantityNames();
 
   auto nameP = names.begin();
   while(! ( (res.begin())->empty() ) ){
@@ -55,36 +148,5 @@ void monteCarlo(const int &L, const int& M,
 }
 
 
-//t4 t5 simulation
-void monteCarloPhiSample(const int& L, const int& M,
-                        const double& kbt,
-                        const double& kphi,
-                        const RandomGenerator & rand,
-                        // const Func & energy,
-                        std::ostream & ouptut = std::cout){
-
-  const Func energy = [&](const double &phi){
-                        return((1+cos(3 * phi)) * kphi / 2);
-                      };
-  const Func bolzmanCof = [&](const double & phi){
-                            return (exp(-energy(phi)/kbt));
-                          };
-  const Func energyProb = [&](const double &phi){
-                            return (energy(phi) * bolzmanCof(phi));
-                          };
-
-  const Test test = [&](const std::list<double> & phis){
-                            double qTemp = totalBy(phis, bolzmanCof);
-                            double q = 2 * pi * qTemp / phis.size();//partition function
-                            double U = totalBy(phis, energyProb) / qTemp;
-                            double helmF = - kbt * log(q);
-                            double entropy = (U - helmF)/kbt * kbt;
-                            std::list<double> ans = {helmF, U, entropy};
-                            return ans;
-                          };
-  std::list<std::string> names = {"Helmholtz-free-energy",
-                                "Internal-energy","Entropy"};
-  monteCarlo(L, M, rand, test,names);
-}
 
 #endif
