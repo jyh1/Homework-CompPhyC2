@@ -78,7 +78,7 @@ class Simulationfort4t5 : public Simulation{
 protected:
   double integrateQTemp = 0;
   double integrateEnergyBolzTemp = 0;
-private:
+protected:
   double kbt;
   double kphi;
 protected:
@@ -86,7 +86,13 @@ protected:
     return 0.5 * kphi * (1 + cos(3 * phi));
   }
   double bolzman(const double & phi)const{
-    return exp(- kbt * energy(phi));
+    return exp(- energy(phi)/kbt);
+  }
+  virtual double getPartition(){
+    std::cerr << "undefined partition function" << std::endl;
+  }
+  virtual double getInternal(){
+    std::cerr << "undefined getInternal" << std::endl;
   }
 public:
   Simulationfort4t5(RandomGenerator g, double kbt1, double kphi1)
@@ -96,8 +102,8 @@ public:
   }
 
   std::list<double> getResults(){
-    double q = integrateQTemp * 2 * pi / getSimulationTimes();
-    double U = integrateEnergyBolzTemp / integrateQTemp;
+    double q = getPartition();
+    double U = getInternal();
     double helmF = - kbt * log(q);
     double entropy = (U - helmF) / kbt;
     std::list<double> ans = {helmF, U, entropy};
