@@ -30,10 +30,19 @@ private:
   }
 
   void makeNewPolymer(){
-    for(auto i = matrixes.begin() + 4; i != matrixes.end(); i++){
-      i->phi = generator();
+    for(int j = 3; j != chainL; j++){
+      Vector3d r3 = xyz.at(j - 1),
+                r2 = xyz.at(j - 2),
+                r1 = xyz.at(j - 3);
+      Vector3d i = (r3 - r2).normalized(), r21 = r1 - r2;
+      Vector3d e = (r21 - (r21.dot(i) * i)).normalized();
+      Vector3d k = i.cross(e);
+      double phi = generator();
+      xyz.at(j) = r3 + b * (sin(theta)*cos(phi) * e -
+                      sin(theta)*sin(phi) * k - cos(theta) * i);
+      energyT += energyt(phi);
       #ifdef DEBUG
-      std::cout << i -> phi << std::endl;
+      std::cout << phi << std::endl;
       #endif
     }
   }
@@ -52,7 +61,7 @@ private:
   }
 
   double getPartition() const{
-    return pow(2 * pi,matrixes.size() - 3) *
+    return pow(2 * pi,chainL - 3) *
           sum1 / sum2;
   }
   double getInternal() const{
@@ -82,8 +91,9 @@ int main(int argc, char const *argv[]) {
 
   parseSerial(p, deleteComments)(ifs);
 
-
+#ifndef DEBUG
   Simulationfort6 simulation(cl, b, theta, kbt, kphi,epsinon, sigma, alpha);
+#endif
 #ifdef DEBUG
   std::cout << kbt << std::endl;
   Simulationfort6 simulation(5, b, theta, kbt, kphi,epsinon, sigma, alpha);
@@ -91,9 +101,14 @@ int main(int argc, char const *argv[]) {
 
   int L, M;
   Parser req = makeRequirementsParser(L, M);
+#ifndef DEBUG
   while (req(ifs) == ParseSucceed){
     monteCarlo(L, M, simulation);
   }
-  // monteCarlo(1,1,simulation);
+#endif
+#ifdef DEBUG
+  monteCarlo(1,1,simulation);
+#endif
+
   return 0;
 }

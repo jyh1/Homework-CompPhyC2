@@ -8,13 +8,14 @@
 #include <algorithm>
 #include <vector>
 #include <math.h>
+#include <Eigen/Dense>
 
 
 #include <const.h>
 #include <statistics.h>
-#include <zmatrix.h>
+// #include <zmatrix.h>
 
-
+using namespace Eigen;
 typedef std::function<double()> RandomGenerator;
 typedef std::function<double(double)> Func;
 typedef std::function<std::list<double>(const std::list<double> &)> Test;
@@ -145,11 +146,13 @@ protected:
 
 class Simulationfort6t7 : public Simulation{
 private:
-  std::vector<Vector3d> xyz;
   double kphi;
+  Matrix3d rotate;
 protected:
-  double epsinon,alphasigma,sigma;
-  std::vector<Zmatrix> matrixes;
+  double energyT = 0;
+  std::vector<Vector3d> xyz;
+  double epsinon,alphasigma,sigma,b,theta;
+  int chainL;
 protected:
   double energyt(const double & phi)const{
     return 0.5 * kphi * (1 + cos(3 * phi));
@@ -169,11 +172,11 @@ protected:
   }
 
   double totalEnergyt()const{
-    double ener = 0;
-    for (auto i = matrixes.begin() + 3; i != matrixes.end(); i++) {
-      ener += energyt(i -> phi);
-    }
-    return ener;
+    // double ener = 0;
+    // for (auto i = matrixes.begin() + 3; i != matrixes.end(); i++) {
+    //   ener += energyt(i -> phi);
+    // }
+    return energyT;
   }
 
   double totalEnergyv()const{
@@ -211,20 +214,23 @@ public:
                     const double &kphix, const double& epsinonx,
                     const double &sigmax, const double& alphax,
                     RandomGenerator g):
+                    chainL(n),b(bx),theta(thetax),
                     kphi(kphix),
                     epsinon(epsinonx),sigma(sigmax),alphasigma(alphax * sigmax),
                     Simulation(g, kbtx){
-                      matrixes.push_back(Zmatrix(1, 0, 0, 0));
-                      matrixes.push_back(Zmatrix(2, 1, bx));
-                      matrixes.push_back(Zmatrix(3, 2, bx, 1, thetax));
-                      for(int i = 4; i != n+1; i ++){
-                        matrixes.push_back(Zmatrix(i, i - 1, bx, i - 2,
-                                                    thetax, i - 3, 0));
-                      }
-                      quantityNames = {"Helmholtz-free-energy",
-                                      "Internal-energy","Entropy",
-                                      "Radius-of-gyration"};
-                    }
+  xyz.resize(n);
+  xyz.at(0)=Vector3d(0,0,0);
+  xyz.at(1) = Vector3d(bx, 0, 0);
+
+  Matrix3d rotate;
+  rotate << cos(theta), sin(theta), 0,
+            -sin(theta), cos(theta), 0,
+            0, 0, 1;
+  xyz.at(2) = (rotate * Vector3d(-bx,0,0)).normalized() * bx + Vector3d(bx,0,0);
+  quantityNames = {"Helmholtz-free-energy",
+                  "Internal-energy","Entropy",
+                  "Radius-of-gyration"};
+}
 
 public:
   std::list<double> getResults() const{
@@ -233,15 +239,16 @@ public:
     double helmF = - kbt * log(q);
     double entropy = (U - helmF) / kbt;
     #ifdef DEBUG
-    std::cout << q << " " << kbt <<" qu"<< std::endl;
+    std::cout << q << " " << U <<" qu"<< std::endl;
     #endif
     std::list<double> ans = {helmF, U, entropy, gyration()};
     return ans;
   }
 protected:
   void update(){
+    energyT = 0;
     makeNewPolymer();
-    xyz = getCartesianList(matrixes);
+    // xyz = getCartesianList(matrixes);
 #ifdef DEBUG
     for(auto i:xyz){
       std::cout << i(0) <<' '<<i(1) << ' '<<i(2) << std::endl;
@@ -273,11 +280,11 @@ void monteCarlo(const int &L, const int& M,
     res.push_back(simulation.runSimulation(L));
   }
 
-  output<<"# number-of-conformers-to-sample(L) number-of-repetitions(M)"
+  output<<"# number-of-conformers-to-sample(L)  number-of-repetitions(M)"
         <<std::endl;
   output << L << ' ' << M << std::endl;
 
-  output<<"# quantity-names ensamble-average error-range" << std::endl;
+  output<<"# quantity-names  ensamble-average  error-range" << std::endl;
 
   auto names = simulation.getQuantityNames();
 
@@ -296,6 +303,7 @@ void monteCarlo(const int &L, const int& M,
             << standardDeviation(resn) << std::endl;
     nameP++;
   }
+  output << std::endl;
 }
 
 
