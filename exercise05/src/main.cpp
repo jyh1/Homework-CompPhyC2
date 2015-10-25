@@ -20,10 +20,10 @@ private:
     integrateQTemp += exp(energy(phi)/kbt);
     integrateEnergyBolzTemp += energy(phi);
   }
-  double getPartition(){
+  double getPartition()const{
     return 1 / integrateQTemp * getSimulationTimes() * 2 * pi;
   }
-  double getInternal(){
+  double getInternal()const{
     return integrateEnergyBolzTemp / getSimulationTimes();
   }
 };

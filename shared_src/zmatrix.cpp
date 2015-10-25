@@ -82,7 +82,7 @@ Vector3d Zmatrix::toCartesian(vector<Zmatrix*> &points) {
   return coord;
 }
 
-Vector3d Zmatrix::getCoordinateFromAxes(const vector<Vector3d> & axes){
+Vector3d Zmatrix::getCoordinateFromAxes(const vector<Vector3d> & axes)const{
   auto &i = axes.at(0);
   auto &e = axes.at(1);
   auto &k = axes.at(2);
@@ -148,6 +148,27 @@ void Zmatrix::getMatrixTheta(const Vector3d & r2, const Vector3d & r3){
 void Zmatrix::getMatrixL(const Vector3d & r3){
   l = (coord - r3).norm();
 }
+
+Vector3d Zmatrix::getCartesian() const{
+  return coord;
+}
+Vector3d Zmatrix::getCartesian(const Vector3d & r3)const{
+  return r3 + l * DEFAULTXAXIS;
+}
+Vector3d Zmatrix::getCartesian(const Vector3d &r3, const Vector3d & r2) const{
+  Matrix3d rotate;
+  rotate << cos(theta), sin(theta), 0,
+            -sin(theta), cos(theta), 0,
+            0, 0, 1;
+  return ((rotate * (r2 - r3)).normalized() * l + r3);
+}
+Vector3d Zmatrix::getCartesian(const Vector3d &r3, const Vector3d &r2,
+                                const Vector3d &r1)const {
+  return r3 + getCoordinateFromAxes(getAxes(r1, r2, r3));
+}
+
+
+
 
 
 //ex2test

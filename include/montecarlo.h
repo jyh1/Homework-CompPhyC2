@@ -6,10 +6,13 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <vector>
+#include <math.h>
 
 
 #include <const.h>
 #include <statistics.h>
+#include <zmatrix.h>
 
 
 typedef std::function<double()> RandomGenerator;
@@ -18,20 +21,24 @@ typedef std::function<std::list<double>(const std::list<double> &)> Test;
 
 class Simulation {
 private:
-  RandomGenerator generator;
   int N=0;
 protected:
+  RandomGenerator generator;
   std::list<std::string> quantityNames;
+  double kbt;
 public:
-  Simulation (RandomGenerator g){
+  Simulation (RandomGenerator g, const double & kbtx):kbt(kbtx){
     generator = g;
+    #ifdef DEBUG
+    std::cout << kbt << std::endl;
+    #endif
   }
   virtual ~Simulation (){}
 
 private:
   void simulateN(const int & n){
     for(int i = 0; i != n ; i++){
-      consume(generator());
+      update();
     }
     N += n;
   }
@@ -58,20 +65,35 @@ protected:
   }
 
 protected:
-  virtual void consume(const double &){
-    std::cerr << "undefined consume function" << std::endl;
+  double bolzmanCof(const double & e)const{
+    return exp(- e / kbt);
+  }
+
+protected:
+  //functions which must be provided by derived class
+  virtual void update(){
+    std::cerr << "undefined update function" << std::endl;
   }
 
   virtual void resetOthers(){
     std::cerr << "undefined resetOthers" << std::endl;
   }
 
-  virtual std::list<double> getResults(){
+  virtual std::list<double> getResults()const{
     std::list<double> ans;
     std::cerr << "undefined getResults" << std::endl;
     return ans;
   }
+  virtual double getPartition()const{
+    std::cerr << "undefined partition function" << std::endl;
+  }
+  virtual double getInternal()const{
+    std::cerr << "undefined getInternal" << std::endl;
+  }
+
 };
+
+
 
 
 class Simulationfort4t5 : public Simulation{
@@ -79,7 +101,6 @@ protected:
   double integrateQTemp = 0;
   double integrateEnergyBolzTemp = 0;
 protected:
-  double kbt;
   double kphi;
 protected:
   double energy(const double & phi)const{
@@ -88,20 +109,15 @@ protected:
   double bolzman(const double & phi)const{
     return exp(- energy(phi)/kbt);
   }
-  virtual double getPartition(){
-    std::cerr << "undefined partition function" << std::endl;
-  }
-  virtual double getInternal(){
-    std::cerr << "undefined getInternal" << std::endl;
-  }
+
 public:
   Simulationfort4t5(RandomGenerator g, double kbt1, double kphi1)
-    :Simulation(g),kbt(kbt1),kphi(kphi1){
+    :Simulation(g,kbt1),kphi(kphi1){
     quantityNames = {"Helmholtz-free-energy",
                     "Internal-energy","Entropy"};
   }
 
-  std::list<double> getResults(){
+  std::list<double> getResults()const{
     double q = getPartition();
     double U = getInternal();
     double helmF = - kbt * log(q);
@@ -115,8 +131,137 @@ private:
     integrateQTemp = 0;
     integrateEnergyBolzTemp = 0;
   }
+protected:
+  void update(){
+    consume(generator());
+  }
+
+  virtual void consume(const double & phi){
+    std::cerr << "undefiend consume function" << std::endl;
+  }
 
 };
+
+
+class Simulationfort6t7 : public Simulation{
+private:
+  std::vector<Vector3d> xyz;
+  double kphi;
+protected:
+  double epsinon,alphasigma,sigma;
+  std::vector<Zmatrix> matrixes;
+protected:
+  double energyt(const double & phi)const{
+    return 0.5 * kphi * (1 + cos(3 * phi));
+  }
+
+  double hardEnergyv(const double &d)const{
+    return 4 * epsinon * (pow(sigma/d, 12) - pow(sigma/d,6));
+  }
+
+  double energyv(const double & d)const{
+    if (d < alphasigma) {
+      return hardEnergyv(alphasigma);
+    }
+    else {
+      return hardEnergyv(d);
+    }
+  }
+
+  double totalEnergyt()const{
+    double ener = 0;
+    for (auto i = matrixes.begin() + 3; i != matrixes.end(); i++) {
+      ener += energyt(i -> phi);
+    }
+    return ener;
+  }
+
+  double totalEnergyv()const{
+    double ener = 0;
+    for(auto i = xyz.begin() + 4; i != xyz.end(); i++){
+      for(auto j = xyz.begin(); j != (i - 3); j++){
+        ener += energyv((*i - *j).norm());
+      }
+    }
+    return ener;
+  }
+
+  double energy()const{
+    return (totalEnergyv() + totalEnergyt());
+  }
+
+
+  double gyration() const{
+    Vector3d m(0,0,0);
+    for(auto i:xyz){
+      m += i;
+    }
+    m /= xyz.size();
+    double ans = 0;
+    for(auto i:xyz){
+      ans += (i - m).squaredNorm();
+    }
+    return (ans / xyz.size());
+  }
+
+public:
+  Simulationfort6t7(const int & n,
+                    const double &bx,const double &thetax,
+                    const double &kbtx,
+                    const double &kphix, const double& epsinonx,
+                    const double &sigmax, const double& alphax,
+                    RandomGenerator g):
+                    kphi(kphix),
+                    epsinon(epsinonx),sigma(sigmax),alphasigma(alphax * sigmax),
+                    Simulation(g, kbtx){
+                      matrixes.push_back(Zmatrix(1, 0, 0, 0));
+                      matrixes.push_back(Zmatrix(2, 1, bx));
+                      matrixes.push_back(Zmatrix(3, 2, bx, 1, thetax));
+                      for(int i = 4; i != n+1; i ++){
+                        matrixes.push_back(Zmatrix(i, i - 1, bx, i - 2,
+                                                    thetax, i - 3, 0));
+                      }
+                      quantityNames = {"Helmholtz-free-energy",
+                                      "Internal-energy","Entropy",
+                                      "Radius-of-gyration"};
+                    }
+
+public:
+  std::list<double> getResults() const{
+    double q = getPartition();
+    double U = getInternal();
+    double helmF = - kbt * log(q);
+    double entropy = (U - helmF) / kbt;
+    #ifdef DEBUG
+    std::cout << q << " " << kbt <<" qu"<< std::endl;
+    #endif
+    std::list<double> ans = {helmF, U, entropy, gyration()};
+    return ans;
+  }
+protected:
+  void update(){
+    makeNewPolymer();
+    xyz = getCartesianList(matrixes);
+#ifdef DEBUG
+    for(auto i:xyz){
+      std::cout << i(0) <<' '<<i(1) << ' '<<i(2) << std::endl;
+    }
+#endif
+    updateSum();
+  }
+
+
+  virtual void makeNewPolymer(){
+    std::cerr << "undefined make new polymer" << std::endl;
+  }
+  virtual void updateSum(){
+    std::cerr << "undefined updateSum" << std::endl;
+  }
+
+};
+
+
+
 
 
 

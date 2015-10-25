@@ -20,10 +20,10 @@ private:
     integrateEnergyBolzTemp += energy(phi) * bolzman(phi);
     // std::cout << integrateQTemp << ' ' << ' ' << integrateEnergyBolzTemp << std::endl;
   }
-  double getPartition(){
+  double getPartition()const{
     return (2 * pi * integrateQTemp / getSimulationTimes());
   }
-  double getInternal(){
+  double getInternal()const{
     return (integrateEnergyBolzTemp / integrateQTemp);
   }
 };

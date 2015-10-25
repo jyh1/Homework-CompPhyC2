@@ -9,7 +9,8 @@
 //make random angle function getRandomPhi
 std::random_device rdev{};
 std::default_random_engine generator{rdev()};
-std::default_random_engine generator2{rdev()};
+// std::default_random_engine generator2{rdev()};
+std::default_random_engine generator2(1);
 // std::default_random_engine generator{};
 std::uniform_real_distribution<double> angle(0, 2*pi);
 std::uniform_real_distribution<double> unit(0,1);
