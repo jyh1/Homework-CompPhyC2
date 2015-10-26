@@ -284,13 +284,13 @@ public:
 protected:
   double getPartition() const{
     return pow(2 * pi,chainL - 3) *
-          partition / wn;
+          wn / partition;
   }
   double getInternal() const{
     return internal/wn;
   }
   double getGyration() const{
-    return sumGyration/getSimulationTimes();
+    return sumGyration/wn;
   }
 
 private:

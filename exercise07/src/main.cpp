@@ -11,9 +11,10 @@
 
 class Simulationfort7 : public Simulationfort6t7{
 private:
-  double Wupper = 0.3, Wlower = 0.03;
-  double delta = 0.000001;
-  double Cupper, Clower;
+  // const double Wupper = 3000000000, Wlower = -0.03;
+  const double Wupper = 0.3, Wlower = 0.03;
+  const double delta = 0.0001;
+  // double Cupper, Clower;
 public:
   Simulationfort7(const int & n,
                     const double &bx,const double &thetax,
@@ -45,7 +46,7 @@ private:
     std::cout << "wnow " <<wnow << std::endl;
     #endif
 
-    if(wnow ==0) return;
+    if(wnow < delta) return;
 
     if(wnow > Wupper){
       step(i+1, wnow / 2, etNow);
@@ -62,10 +63,11 @@ private:
   }
 
   void updateSum(const double &w, const double &et){
-    sum2 += w;
     double ev = totalEnergyv();
-    sum1 += 1/bolzmanCof(ev+et) * w;
-    sum3 +=
+    wn += w;
+    partition += 1/bolzmanCof(ev+et) * w;
+    internal += (ev+et) * w;
+    sumGyration += gyration() * w;
   }
 
 

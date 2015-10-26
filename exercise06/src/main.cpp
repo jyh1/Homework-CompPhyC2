@@ -50,7 +50,7 @@ protected:
     wn += bolzmanCof(ev);
     partition += 1/bolzmanCof(et);
     internal += (ev + et)*bolzmanCof(ev);
-    sumGyration += gyration();
+    sumGyration += gyration()*bolzmanCof(ev);
     #ifdef DEBUG
     std::cout << ev << ' ' << et << std::endl;
     std::cout << sum1 << ' '<< sum2 << ' ' << sum3 << "sum" << std::endl;
