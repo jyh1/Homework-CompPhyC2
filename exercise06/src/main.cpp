@@ -13,8 +13,6 @@
 #include <parsezmatrix.h>
 
 class Simulationfort6 : public Simulationfort6t7{
-private:
-  double sum1 = 0, sum2 = 0, sum3 = 0;
 public:
   Simulationfort6(const int & n,
                     const double &bx,const double &thetax,
@@ -24,10 +22,6 @@ public:
                     Simulationfort6t7(n, bx, thetax, kbtx, kphix, epsinonx,
                                       sigmax, alphax,
                                       std::bind(getBoltzmanPhi, kbtx, kphix)){}
-private:
-  void resetOthers(){
-    sum1 = 0;sum2=0;sum3=0;
-  }
 
   void makeNewPolymer(){
     for(int j = 3; j != chainL; j++){
@@ -40,26 +34,6 @@ private:
     }
   }
 
-  void updateSum(){
-    double ev = totalEnergyv();
-    double et = totalEnergyt();
-    sum1 += bolzmanCof(ev);
-    sum2 += 1 / bolzmanCof(et);
-    sum3 += (ev + et)*bolzmanCof(ev);
-    #ifdef DEBUG
-    std::cout << ev << ' ' << et << std::endl;
-    std::cout << sum1 << ' '<< sum2 << ' ' << sum3 << "sum" << std::endl;
-    #endif
-
-  }
-
-  double getPartition() const{
-    return pow(2 * pi,chainL - 3) *
-          sum1 / sum2;
-  }
-  double getInternal() const{
-    return sum3 / sum1;
-  }
 protected:
   void simulateN(const int &n){
     for(int i =0; i!=n; i++){
@@ -81,6 +55,7 @@ int main(int argc, char const *argv[]) {
   }
   int cl;
   double b, theta ,kbt, kphi, epsinon, sigma, alpha;
+
   std::list<Parser> p = {
                         makeIntParser(cl),
                         makeDoubleParser(b),
@@ -96,6 +71,7 @@ int main(int argc, char const *argv[]) {
 #ifndef DEBUG
   Simulationfort6 simulation(cl, b, theta, kbt, kphi,epsinon, sigma, alpha);
 #endif
+
 #ifdef DEBUG
   std::cout << kbt << std::endl;
   Simulationfort6 simulation(5, b, theta, kbt, kphi,epsinon, sigma, alpha);
