@@ -36,14 +36,6 @@ public:
   }
   virtual ~Simulation (){}
 
-private:
-  void simulateN(const int & n){
-    for(int i = 0; i != n ; i++){
-      update();
-    }
-    N += n;
-  }
-
 public:
   std::list<double> runSimulation(const int & n){
     simulateN(n);
@@ -58,6 +50,10 @@ public:
 protected:
   int getSimulationTimes() const {
     return N;
+  }
+
+  void addSimulationTimes(const double &d) {
+    N += d;
   }
 
   void reset(){
@@ -91,6 +87,11 @@ protected:
   virtual double getInternal()const{
     std::cerr << "undefined getInternal" << std::endl;
   }
+
+  virtual void simulateN(const int & n){
+    std::cout << "undefined simulateN" << std::endl;
+  }
+
 
 };
 
@@ -135,6 +136,13 @@ private:
 protected:
   void update(){
     consume(generator());
+  }
+
+  void simulateN(const int &n){
+    for(int i = 0 ; i != n; i++){
+      update();
+    }
+    addSimulationTimes(n);
   }
 
   virtual void consume(const double & phi){
@@ -232,44 +240,35 @@ public:
                   "Radius-of-gyration"};
 }
 
+protected:
+  void growAt(const int & j, const double & phi){
+    Vector3d r3 = xyz.at(j - 1),
+              r2 = xyz.at(j - 2),
+              r1 = xyz.at(j - 3);
+    Vector3d i = (r3 - r2).normalized(), r21 = r1 - r2;
+    Vector3d e = (r21 - (r21.dot(i) * i)).normalized();
+    Vector3d k = i.cross(e);
+
+    xyz.at(j) = r3 + b * (sin(theta)*cos(phi) * e -
+                    sin(theta)*sin(phi) * k - cos(theta) * i);
+  }
+
 public:
   std::list<double> getResults() const{
     double q = getPartition();
     double U = getInternal();
     double helmF = - kbt * log(q);
     double entropy = (U - helmF) / kbt;
+
     #ifdef DEBUG
     std::cout << q << " " << U <<" qu"<< std::endl;
     #endif
+
     std::list<double> ans = {helmF, U, entropy, gyration()};
     return ans;
   }
-protected:
-  void update(){
-    energyT = 0;
-    makeNewPolymer();
-    // xyz = getCartesianList(matrixes);
-#ifdef DEBUG
-    for(auto i:xyz){
-      std::cout << i(0) <<' '<<i(1) << ' '<<i(2) << std::endl;
-    }
-#endif
-    updateSum();
-  }
-
-
-  virtual void makeNewPolymer(){
-    std::cerr << "undefined make new polymer" << std::endl;
-  }
-  virtual void updateSum(){
-    std::cerr << "undefined updateSum" << std::endl;
-  }
 
 };
-
-
-
-
 
 
 void monteCarlo(const int &L, const int& M,
@@ -284,7 +283,7 @@ void monteCarlo(const int &L, const int& M,
         <<std::endl;
   output << L << ' ' << M << std::endl;
 
-  output<<"# quantity-names  ensamble-average  error-range" << std::endl;
+  output<<"# quantity-name  ensamble-average  error-range" << std::endl;
 
   auto names = simulation.getQuantityNames();
 

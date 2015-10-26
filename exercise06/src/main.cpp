@@ -31,15 +31,8 @@ private:
 
   void makeNewPolymer(){
     for(int j = 3; j != chainL; j++){
-      Vector3d r3 = xyz.at(j - 1),
-                r2 = xyz.at(j - 2),
-                r1 = xyz.at(j - 3);
-      Vector3d i = (r3 - r2).normalized(), r21 = r1 - r2;
-      Vector3d e = (r21 - (r21.dot(i) * i)).normalized();
-      Vector3d k = i.cross(e);
       double phi = generator();
-      xyz.at(j) = r3 + b * (sin(theta)*cos(phi) * e -
-                      sin(theta)*sin(phi) * k - cos(theta) * i);
+      growAt(j, phi);
       energyT += energyt(phi);
       #ifdef DEBUG
       std::cout << phi << std::endl;
@@ -66,6 +59,15 @@ private:
   }
   double getInternal() const{
     return sum3 / sum1;
+  }
+protected:
+  void simulateN(const int &n){
+    for(int i =0; i!=n; i++){
+      energyT = 0;
+      makeNewPolymer();
+      updateSum();
+    }
+    addSimulationTimes(n);
   }
 };
 
