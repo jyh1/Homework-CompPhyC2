@@ -156,7 +156,7 @@ class Simulationfort6t7 : public Simulation{
 private:
   double kphi;
 protected:
-    double sum1 = 0, sum2 = 0, sum3 = 0,sumGyration=0;
+    double wn = 0, partition = 0, internal = 0,sumGyration=0;
 
 protected:
   double energyT = 0;
@@ -284,31 +284,18 @@ public:
 protected:
   double getPartition() const{
     return pow(2 * pi,chainL - 3) *
-          sum1 / sum2;
+          partition / wn;
   }
   double getInternal() const{
-    return sum3 / sum1;
+    return internal/wn;
   }
   double getGyration() const{
     return sumGyration/getSimulationTimes();
   }
 
-  void updateSum(){
-    double ev = totalEnergyv();
-    double et = totalEnergyt();
-    sum1 += bolzmanCof(ev);
-    sum2 += 1 / bolzmanCof(et);
-    sum3 += (ev + et)*bolzmanCof(ev);
-    sumGyration += gyration();
-    #ifdef DEBUG
-    std::cout << ev << ' ' << et << std::endl;
-    std::cout << sum1 << ' '<< sum2 << ' ' << sum3 << "sum" << std::endl;
-    #endif
-
-  }
 private:
   void resetOthers(){
-    sum1 = 0;sum2=0;sum3=0;
+    wn = 0;partition=0;internal=0;
     sumGyration=0;
   }
 };

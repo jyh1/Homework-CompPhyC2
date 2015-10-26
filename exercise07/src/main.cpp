@@ -27,7 +27,7 @@ private:
   void step(const int i,const double W,const double et){
     if(i >= chainL){
       energyT = et;
-      updateSum();
+      updateSum(W,et);
       addSimulationTimes(1);
       return;
     }
@@ -45,7 +45,7 @@ private:
     std::cout << "wnow " <<wnow << std::endl;
     #endif
 
-    if(wnow < delta) return;
+    if(wnow ==0) return;
 
     if(wnow > Wupper){
       step(i+1, wnow / 2, etNow);
@@ -59,6 +59,13 @@ private:
       return;
     }
     step(i+1,wnow, etNow);
+  }
+
+  void updateSum(const double &w, const double &et){
+    sum2 += w;
+    double ev = totalEnergyv();
+    sum1 += 1/bolzmanCof(ev+et) * w;
+    sum3 +=
   }
 
 

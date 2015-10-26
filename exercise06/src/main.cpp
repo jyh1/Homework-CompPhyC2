@@ -20,9 +20,9 @@ public:
                     const double &kphix, const double& epsinonx,
                     const double &sigmax, const double& alphax):
                     Simulationfort6t7(n, bx, thetax, kbtx, kphix, epsinonx,
-                                      sigmax, alphax,
+                                      sigmax, 0,
                                       std::bind(getBoltzmanPhi, kbtx, kphix)){}
-
+protected:
   void makeNewPolymer(){
     for(int j = 3; j != chainL; j++){
       double phi = generator();
@@ -42,6 +42,19 @@ protected:
       updateSum();
     }
     addSimulationTimes(n);
+  }
+
+  void updateSum(){
+    double ev = totalEnergyv();
+    double et = totalEnergyt();
+    wn += bolzmanCof(ev);
+    partition += 1/bolzmanCof(et);
+    internal += (ev + et)*bolzmanCof(ev);
+    sumGyration += gyration();
+    #ifdef DEBUG
+    std::cout << ev << ' ' << et << std::endl;
+    std::cout << sum1 << ' '<< sum2 << ' ' << sum3 << "sum" << std::endl;
+    #endif
   }
 };
 
