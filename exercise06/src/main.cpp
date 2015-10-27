@@ -20,7 +20,7 @@ public:
                     const double &kphix, const double& epsinonx,
                     const double &sigmax, const double& alphax):
                     Simulationfort6t7(n, bx, thetax, kbtx, kphix, epsinonx,
-                                      sigmax, 0,
+                                      sigmax, alphax,
                                       std::bind(getBoltzmanPhi, kbtx, kphix)){}
 protected:
   void makeNewPolymer(){

@@ -13,7 +13,7 @@ class Simulationfort7 : public Simulationfort6t7{
 private:
   // const double Wupper = 3000000000, Wlower = -0.03;
   const double Wupper = 0.3, Wlower = 0.03;
-  const double delta = 0.0001;
+  const double delta = 0.000001;
   // double Cupper, Clower;
 public:
   Simulationfort7(const int & n,
