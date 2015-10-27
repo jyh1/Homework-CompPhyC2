@@ -36,17 +36,10 @@ private:
     growAt(i,phi);
     double etNow = et + energyt(phi);
 
-    #ifdef DEBUG
-    std::cout << "phi " <<phi << std::endl;
-    #endif
-
     double wnow = W * bolzmanCof(energyvAt(i));
 
-    #ifdef DEBUG
-    std::cout << "wnow " <<wnow << std::endl;
-    #endif
 
-    if(wnow < delta) return;
+    if(wnow < delta) return;//too unlikely ,discard
 
     if(wnow > Wupper){
       step(i+1, wnow / 2, etNow);

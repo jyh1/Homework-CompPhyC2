@@ -298,6 +298,17 @@ private:
     wn = 0;partition=0;internal=0;
     sumGyration=0;
   }
+
+
+//
+  virtual void updateSum(const double & w){
+    double ev = totalEnergyv();
+    double et = totalEnergyt();
+    wn += w;
+    partition += 1/bolzmanCof(et+ev) * w;
+    internal += (ev + et)*w;
+    sumGyration += gyration()*w;
+  }
 };
 
 
