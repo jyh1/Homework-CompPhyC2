@@ -103,10 +103,10 @@ int main(int argc, char const *argv[]) {
 // #ifndef DEBUG
   Simulationfort7 simulation(cl, b, theta, kbt, kphi,epsinon, sigma);
 // #endif
-// #ifdef DEBUG
+#ifdef DEBUG
   std::cout << kbt << std::endl;
   Simulationfort7 simulation(6, b, theta, kbt, kphi,epsinon, sigma);
-// #endif
+#endif
 
   int L, M;
   Parser req = makeRequirementsParser(L, M);
