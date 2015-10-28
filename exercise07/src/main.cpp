@@ -100,24 +100,24 @@ int main(int argc, char const *argv[]) {
                         deleteComments};
   parseSerial(p, deleteComments)(ifs);
 
-#ifndef DEBUG
+// #ifndef DEBUG
   Simulationfort7 simulation(cl, b, theta, kbt, kphi,epsinon, sigma);
-#endif
-#ifdef DEBUG
+// #endif
+// #ifdef DEBUG
   std::cout << kbt << std::endl;
   Simulationfort7 simulation(6, b, theta, kbt, kphi,epsinon, sigma);
-#endif
+// #endif
 
   int L, M;
   Parser req = makeRequirementsParser(L, M);
-#ifndef DEBUG
+// #ifndef DEBUG
   while (req(ifs) == ParseSucceed){
     monteCarlo(L, M, simulation);
   }
-#endif
-#ifdef DEBUG
-  monteCarlo(1,1,simulation);
-#endif
+// #endif
+// #ifdef DEBUG
+//   monteCarlo(1,1,simulation);
+// #endif
 
   return 0;
 }

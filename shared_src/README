@@ -1,0 +1,5 @@
+文件夹包含以下文件:
+parse.cpp  parsezmatrix.cpp  zmatrix.cpp
+以及相应的预编译.o文件.
+
+对各文件进一步说明包含在../include/README相应的头文件说明中.

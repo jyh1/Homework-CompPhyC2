@@ -1,1 +1,1 @@
-explain how to run your program in this file.
+从random.h中获取产生0,2pi均匀分布的随机数生成器,通过随机数构造zmatrix.利用第一题相同的方法进行坐标转换.输出到题目指定的文件夹中.

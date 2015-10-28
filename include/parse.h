@@ -37,7 +37,6 @@ Parser makeNameParser(string &s);
 
 Parser parseUntilFailed(Parser);
 Parser parseUntilSucceed(Parser, Parser);
-Parser parseParallel(list<Parser>);
 Parser backward(Parser);
 Parser alwaysBackward(Parser);
 Parser alwaysSucceed(Parser);

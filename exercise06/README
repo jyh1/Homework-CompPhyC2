@@ -1,1 +1,1 @@
-explain how to run your program in this file.
+与第四第五题思路相似,特化Simulationfort6t7定义Simulationt6,调用monteCarlo函数进行模拟.

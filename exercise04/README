@@ -1,1 +1,1 @@
-explain how to run your program in this file.
+将motecarlo.h中Simulationfort4t5进一步特化为Simualtiont4,解析要求后直接调用monteCarlo函数进行抽样模拟,输出至标准输出.

@@ -1,1 +1,1 @@
-explain how to run your program in this file.
+思路与exercise04完全相同,将Simulationt5抽样方式改变为在random.h中玻尔兹曼分布抽样

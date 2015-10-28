@@ -1,1 +1,2 @@
-explain how to run your program in this file.
+程序通过parsezmtrix.h提供的函数对输入文件进行解析,坐标变换后将坐标输出至标准输出.
+坐标变换函数toCartesian代码包含在zmatrix.cpp中.

@@ -1,1 +1,2 @@
-explain how to run your program in this file.
+程序从exercise01/results中仍然利用相同的解析函数读入上个作业产生的xyz坐标,利用zmatrix class中fromCatesian进行坐标转换,输出到标准输出.
+已验证得到结果与第一题输入相同.

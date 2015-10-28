@@ -1,5 +1,18 @@
-1. Put all related files under a single root directory.
-2. Use your student ID and name in PINYING to name your root directory.
-3. Make a subdirectory for each exercise, e.g., excercise01/, excercise02/...
-4. Under each exercise directory, you may further organize the files into subdirectories, for examples,  e.g., exercise01/src/,  exercise01/bin/,exercise01/results/. 
-5. Reuse as many codes as you can between different excercises. Make sure the shared header files and functions are put under subdirectories include/ or shared_src/. We will judge the modularity of your program based on the amount of code shared between different exercises. 
+计算物理C作业:
+
+内容:
+目录包含七个独立的作业文件夹,data,include,shared_src文件夹,以及包含预编译命令的buildlib.sh文件,和若干git(VCS)文件构成.相应文件夹中的README文件会对其所包含内容进一步说明.
+程序中使用c++ Eigen库(进行向量运算),以及c++11标准库.其余所有文件均独立编写并包含在homework/文件夹内.
+
+
+编译:
+各作业文件中bin目录下已含有编译完成的可执行文件.若需要重新编译:
+运行homework文件夹内的buildlib.sh(预编译shared_src/中的代码,可跳过)
+运行各exercise/文件夹中build.sh,会在相应的bin目录下产生命名为main的二进制文件.
+
+运行:
+在各题目文件夹下执行sh run.sh,会调用该题目的可执行文件,读取data中相应题目的输入并在results/文件夹下产生题目指定的输出文件.
+(可以直接执行bin/main并在参数中提供输入文件路径,除第三题外程序输出均为标准输出,相应的run.sh中将输出重定向至指定的文件夹).
+
+P.S.:
+这次作业是我第一次使用c++编写比较正式(代码超过50行=_=)的程序.因此是边学习相关内容边完成作业,编写风格不连贯,以及对某些特性不够了解导致冗长的代码.频繁的修改导致代码结构比较混乱,并且缺少注释.尤其是前几道题编写的代码可能需要彻底的重构.相应文件夹的README会尽量对编写情况进行说明.
